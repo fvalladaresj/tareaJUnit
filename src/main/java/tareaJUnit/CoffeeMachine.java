@@ -38,15 +38,20 @@ public class CoffeeMachine {
 		}
 	}
 
-	public static String checkInventoryInput(String[] input) {
-		for (int i = 0; i < input.length; i++) {
-			if (!isParsable(input[i])) {
-				return "numero no entero";
-			} else if (Integer.parseInt(input[i]) < 0) {
-				return "numero negativo";
+	public static boolean checkInventoryInput(String[] input) {
+		if (input.length != 4) {
+			return false;
+		} else {
+			for (int i = 0; i < input.length; i++) {
+				if (!isParsable(input[i])) {
+					return false;
+				} else if (Integer.parseInt(input[i]) < 0) {
+					return false;
+				}
 			}
+			updateInventory(input);
+			return true;
 		}
-		return "";
 	}
 
 	public static void updateInventory(String[] input) {
@@ -56,12 +61,12 @@ public class CoffeeMachine {
 		return;
 	}
 
-	public static void checkPayment(int payment, Recipe recipe) {
+	public static String checkPayment(int payment, Recipe recipe) {
 		// Check inventory
 		for (int i = 0; i < Stock.length; i++) {
 			if (Stock[i] < recipe.getIngredients()[i]) {
 				System.out.print(String.format("No hay suficientes ingredientes para realizar la bebida, devolviendo %d \n", payment));
-				return;
+				return String.format("No hay suficientes ingredientes para realizar la bebida, devolviendo %d \n", payment);
 			}
 		}
 	
@@ -69,24 +74,25 @@ public class CoffeeMachine {
 		int change = payment - recipe.getPrice();
 		if (change < 0) {
 			System.out.print(String.format("Pago insuficiente, devolviendo %d \n", payment));
-			return;
+			return String.format("Pago insuficiente, devolviendo %d \n", payment);
 		} else {
 			// Update inventory
 			for (int i = 0; i < Stock.length; i++) {
 				Stock[i] -= recipe.getIngredients()[i];
 			}
 			
-			System.out.print(String.format("Pago realizado correctamente, vuelto: %d \n", change));
-			System.out.print(String.format("Su bebida %s esta lista. \n", recipe.getName() ));
+			System.out.print(String.format("Su bebida %s esta lista. \n Pago realizado correctamente, vuelto: %d \n", recipe.getName(), change));
+			return String.format("Su bebida %s esta lista. \n Pago realizado correctamente, vuelto: %d \n", recipe.getName(), change);
 		}
 	}
 	
-	public static void printInventoryStatus() {
-		System.out.print("Inventario actual:  \n");
+	public static String printInventoryStatus() {
+		System.out.print("Inventario actual: \n");
 		System.out.print(String.format("Cafe: %d \n", Stock[0]));
 		System.out.print(String.format("Chocolate: %d \n", Stock[1]));
 		System.out.print(String.format("Leche: %d \n", Stock[2]));
 		System.out.print(String.format("Azucar: %d \n", Stock[3]));
+		return(String.format("Inventario actual: \n Cafe: %d \n Chocolate: %d \n Leche: %d \n Azucar: %d \n", Stock[0], Stock[1], Stock[2], Stock[3]));
 	}
 
 	public static void main(String[] args) {
@@ -105,11 +111,8 @@ public class CoffeeMachine {
 						System.out.print(
 								"Para agregar inventario indique cada unidad a agregar en el siguiente orden separadas por un espacio: \n Cafe Chocolate Leche Azucar \n");
 						auxStock = myObj.nextLine().trim().split(" ");
-						if (auxStock.length == 4) {
-							inventoryInputValid = checkInventoryInput(auxStock) == "";
-						}
+						inventoryInputValid = checkInventoryInput(auxStock);
 					}
-					updateInventory(auxStock);
 					System.out.print("\n");
 					break;
 
